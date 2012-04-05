@@ -1,0 +1,16 @@
+sshrdp
+
+A wrapper script used for tunneling freerdp connections over RDP with NLA enabled
+
+To use:
+1. Put the sshrdp script somewhere along your path.
+2. Create a ~/.sshrdp/bouncehost file which contains the host you'd like to use for ssh tunnelling on the first line
+3. Run sshrdp <host> [<additional freerdp options>]
+
+The script assumes:
+* That your username matches your linux user
+* That rdp NLA keys are stored in ~/.freerdp/known_hosts
+* That you are using ssh keys and that your key is already added to ssh-agent
+* That you are using active directory, and an appropriate string for this is 'ad'
+
+If any of this isn't true, edit the variables at the top of the script, or override the freerdp options on the command line
