@@ -1,6 +1,6 @@
 sshrdp
 
-A wrapper script used for tunneling freerdp connections over RDP with NLA enabled
+A wrapper script used for tunneling freerdp connections over SSH with NLA enabled
 
 To use:
 1. Put the sshrdp script somewhere along your path.
