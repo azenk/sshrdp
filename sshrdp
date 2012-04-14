@@ -26,35 +26,6 @@ while echo $usedports | grep -q $localport ; do
 done
 echo "Using local port $localport"
 
-## Key Management
-
-if ! [ -f $sshrdpkeyfile ]; then
-	touch $sshrdpkeyfile
-fi
-
-key=$(grep -E  "^$host[[:space:]].*$" $sshrdpkeyfile | tail -n 1 | gawk '{print $2}')
-
-if [ "$key" != "" ] ; then
-	#If we have a key for this host already, add it to the beginning of the freerdp keys file as localhost
-	echo "Found key signature $key for $host"
-
-	if [ -f "$freerdpkeyfile.sshrdp_orig" ]; then
-		# Restore previously backed up contents of keyfile, handles the cases where we run in parallel as well as general cleanup of failed runs
-		mv "$freerdpkeyfile.sshrdp_orig" "$freerdpkeyfile"
-	fi
-
-	if [ -f $freerdpkeyfile ]; then
-		if [ -s $freerdpkeyfile ] ; then
-			# Use sed to add our key to the beginning of the key file, keeping a backup for use later
-			sed -i".sshrdp_orig" "1i\localhost\t$key" $freerdpkeyfile
-		else
-			#RDP key file is empty, sed won't work, so just add our line to the end
-			echo -e "localhost\t$key" >> $freerdpkeyfile
-			touch "$freerdpkeyfile.sshrdp_orig"
-		fi
-	fi
-fi
-
 ## Setup SSH Tunnel
 
 ssh -L $localport:$host:3389 $bouncehost -N &
@@ -70,18 +41,7 @@ echo "connected"
 ## RDP
 
 echo "Connecting to $host via ssh tunnel using xfreerdp" 
-xfreerdp --sec nla $defaultfreerdpopts $@ localhost:$localport
+xfreerdp --sec nla --certificate-name $host  $defaultfreerdpopts $@ localhost:$localport
 
 kill $sshpid
-
-## Key Management
-
-if [ -f "$freerdpkeyfile.sshrdp_orig" ]; then
-	mv "$freerdpkeyfile.sshrdp_orig" "$freerdpkeyfile"
-else
-	newkey=$(grep localhost $freerdpkeyfile | tail -n 1 | gawk '{print $2}')
-	if [ "$newkey" != "" ] ; then
-		echo "$host	$newkey" >> $sshrdpkeyfile
-	fi
-fi
 
