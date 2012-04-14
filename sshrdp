@@ -14,8 +14,6 @@ if [ ! -f ~/.sshrdp/bouncehost ] || [ ! -s ~/.sshrdp/bouncehost ] ; then
 fi
 
 defaultfreerdpopts="-g 1500x980 -d ad -u `whoami` --plugin drdynvc --data tsmf --"
-freerdpkeyfile=~/.freerdp/known_hosts
-sshrdpkeyfile=~/.sshrdp/known_hosts
 bouncehost=$(cat ~/.sshrdp/bouncehost | head -n 1 | gawk '{print $1}')
 
 usedports=$(netstat --protocol=inet -t -n -a | grep -i listen | gawk '{print $4}' | gawk 'BEGIN{FS=":"}{print $2}' | sort -n)
