@@ -13,7 +13,15 @@ if [ ! -f ~/.sshrdp/bouncehost ] || [ ! -s ~/.sshrdp/bouncehost ] ; then
 	exit 1
 fi
 
-defaultfreerdpopts="-g 1500x980 -d ad -u `whoami` --plugin drdynvc --data tsmf --"
+## Determine resolution
+if [ -x `which xrandr` ]; then
+	res=$(xrandr | grep "*" | gawk 'BEGIN{minx=100000;miny=100000;}{split($1,res,"x");if (res[1] < minx){minx = res[1]} if (res[2] < miny){miny = res[2]}}END{print minx-50 "x" miny-50;}')
+	resflags="-g $res"
+else
+	resflags="-g 1024x640"
+fi
+
+defaultfreerdpopts="$resflags -d ad -u `whoami` --plugin drdynvc --data tsmf --"
 bouncehost=$(cat ~/.sshrdp/bouncehost | head -n 1 | gawk '{print $1}')
 
 usedports=$(netstat --protocol=inet -t -n -a | grep -i listen | gawk '{print $4}' | gawk 'BEGIN{FS=":"}{print $2}' | sort -n)
